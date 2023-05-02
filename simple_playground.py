@@ -3,6 +3,7 @@ import random as r
 from simple_geometry import *
 import matplotlib.pyplot as plt
 import RBFN as rbfn
+import GA
 import numpy as np
 
 class Car():
@@ -314,8 +315,10 @@ def run_example(knum):
     data = np.array(rbfn.getTrain4d())
     data, y = data[:, :-1], data[:, -1]
     print(data)
-    rbfnet = rbfn.RBFNet(k=knum)
-    rbfnet.fit(data, y)
+    ga = GA.GeneticOpt(init_G_num=5, RBFN_K=10)
+    # rbfnet = rbfn.RBFNet(k=knum)
+    Result_Genetic = ga.fit(30)
+    # rbfnet.fit(data, y)
 
     carInfo = []
     while not p.done:
@@ -325,7 +328,8 @@ def run_example(knum):
         carInfo.append(info)
         # select action randomly
         # you can predict your action according to the state here
-        action = rbfnet.predict(state)
+        
+        action = Result_Genetic.predict(state)
         #print(action)
         # take action
         print(state[0], state[1], state[2], action)
@@ -374,4 +378,4 @@ def run_example6d(knum):
     return carInfo
 
 if __name__ == "__main__":
-    run_example6d(10)
+    run_example(10)

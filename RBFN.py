@@ -108,6 +108,7 @@ class RBFNet(object):
             qp.append(a)
         qp = np.array(qp)
         y = np.array(y)
+        print(y)
         self.w = ((np.linalg.inv(qp.T.dot(qp))).dot(qp.T)).dot(y)
 
     def predict(self, X):
@@ -115,3 +116,11 @@ class RBFNet(object):
         # a = np.array([1] + [X])
         y_pred = a.dot(self.w)
         return np.array(y_pred)
+    
+if __name__ == "__main__":
+    rbfn = RBFNet(k=10)
+    traindata = np.array(getTrain4d())
+    X = traindata[:, :-1]
+    Y = traindata[:, -1]
+    rbfn.fit(X,Y)
+    print(rbfn.predict([9.7355, 10.9379, 18.5740]))
