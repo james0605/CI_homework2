@@ -18,8 +18,8 @@ class GeneticOpt(object):
             # print(predict)
             sum += abs(y - predict)**2
             # sum += (y - predict)
-        return 1/(sum)
-
+        return 1/(sum/2)
+    
     def cal_avg_fitness(self):
         fitness = []
         for Genetic in self.Genetics:
@@ -34,13 +34,27 @@ class GeneticOpt(object):
     # 複製
     def reproduction(self):
         pool = []
-        avg_fitness = self.cal_avg_fitness()
+        # avg_fitness = self.cal_avg_fitness()
         fitness = [self.cal_fitness(Genetic) for Genetic in self.Genetics]
-        print([0 if (fit / avg_fitness) < 0 else fit / avg_fitness for fit in fitness])
-        self.reproduction_Num = [0 if round(fit / avg_fitness) < 0 else round(fit / avg_fitness) for fit in fitness]
-        print("reproduction Num = {}".format(self.reproduction_Num))
-        for k in range(len(self.reproduction_Num)):
-            for i in range(self.reproduction_Num[k]):
+        # 線性調整
+        min_fit = min(fitness)
+        max_fit = max(fitness)
+        fitness = np.array(fitness)
+        fitness = fitness - min_fit
+        d = max_fit - min_fit
+        # print(fitness)
+        fitness /= d
+        # print(type(fitness))
+        avg_fitness = np.mean(fitness)
+        reproduction_Num = fitness/avg_fitness
+        reproduction_Num = np.rint(reproduction_Num).astype(int)
+        print(type(reproduction_Num))
+
+
+        # self.reproduction_Num = [0 if round(fit / avg_fitness) < 0 else round(fit / avg_fitness) for fit in fitness]
+        print("reproduction Num = {}".format(reproduction_Num))
+        for k in range(len(reproduction_Num)):
+            for i in range(reproduction_Num[k]):
                 pool.append(self.Genetics[k])
         return pool
     # 交配
@@ -77,6 +91,8 @@ class GeneticOpt(object):
                 self.check_Genetic_w()
             # print(self.Genetics)
             # 交配
+            if len(self.Genetics) <= 1:
+                break
             rand_list = np.arange(0, len(self.Genetics))
             rand_list = list(rand_list)
             rand_selet = random.sample(rand_list, k=2)
@@ -121,16 +137,16 @@ class GeneticOpt(object):
             print("Genetic {} predict {}".format(i, Genetic.predict(state)))
 
 if __name__ == "__main__":
-    ga = GeneticOpt(10, 10)
+    ga = GeneticOpt(10, 10, dump = True)
     # print("Genetic1 w:{}".format(ga.Genetics[0].w))
     # print("Genetic2 w:{}".format(ga.Genetics[1].w))
     # ga.crossover(ga.Genetics[0], ga.Genetics[1])
     # print("Genetic1 w:{}".format(ga.Genetics[0].w))
     # print("Genetic2 w:{}".format(ga.Genetics[1].w))
-    ga.reproduction()
+    # ga.reproduction()
     
-    # ga.fit(epoch=50)
-    # ga.predict([9.7355, 10.9379, 18.5740])
+    ga.fit(epoch=5)
+    ga.predict([9.7355, 10.9379, 18.5740])
 
 
     # print(ga.reproduction())
