@@ -102,7 +102,7 @@ class RBFNet(object):
     #     self.w = ((np.linalg.inv(qp.T.dot(qp))).dot(qp.T)).dot(y)
             
     def fit(self, X, y):
-        qp = []    
+        qp = []
         for i in range(X.shape[0]):
             a = np.array([1] + [gaussian(X[i], c, s) for c, s, in zip(self.centers, self.stds)])
             qp.append(a)
@@ -118,7 +118,7 @@ class RBFNet(object):
         return np.array(y_pred)
     
 if __name__ == "__main__":
-    rbfn = RBFNet(k=10)
+    rbfn = RBFNet(k=15)
     traindata = np.array(getTrain4d())
     X = traindata[:, :-1]
     Y = traindata[:, -1]

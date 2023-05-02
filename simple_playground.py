@@ -315,9 +315,9 @@ def run_example(knum):
     data = np.array(rbfn.getTrain4d())
     data, y = data[:, :-1], data[:, -1]
     print(data)
-    ga = GA.GeneticOpt(init_G_num=5, RBFN_K=10)
+    ga = GA.GeneticOpt(G_num=20, RBFN_K=knum)
     # rbfnet = rbfn.RBFNet(k=knum)
-    Result_Genetic = ga.fit(30)
+    ga.fit(100)
     # rbfnet.fit(data, y)
 
     carInfo = []
@@ -329,7 +329,7 @@ def run_example(knum):
         # select action randomly
         # you can predict your action according to the state here
         
-        action = Result_Genetic.predict(state)
+        action = ga.predict(state)
         #print(action)
         # take action
         print(state[0], state[1], state[2], action)
