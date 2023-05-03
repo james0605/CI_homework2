@@ -1,6 +1,15 @@
 import numpy as np
 import RBFN
 import random
+
+'''
+self.Muta_Fra = 0.3
+self.Cross_Fra = 0.5
+self.REPET_fra= 0.2
+G_num = 50
+k:15
+'''
+
 class GeneticOpt(object):
     def __init__(self, G_num = 5, RBFN_K = 10, dump = False) -> None:
         self.Genetics = []
@@ -11,9 +20,9 @@ class GeneticOpt(object):
         self.dump = dump
         self.is_done = False
         self.Muta_Fra = 0.3
-        self.Cross_Fra = 0.3
+        self.Cross_Fra = 0.5
         self.REPET_fra= 0.2
-        self.POOL_NUM = 15
+        self.G_NUM = G_num
 
         for i in range(G_num):
             weight = np.random.randn(RBFN_K + 1) * np.random.randn(RBFN_K + 1)
@@ -75,7 +84,7 @@ class GeneticOpt(object):
         fitness = np.array([self.RMSE_loss(Genetic) for Genetic in self.Genetics])
         sorted_fitness = np.argsort(fitness)
         print("BEST Genetic RMSE loss :{}".format(self.RMSE_loss(self.Genetics[sorted_fitness[0]])))
-        WINER_NUM = int(self.POOL_NUM * self.REPET_fra)
+        WINER_NUM = int(self.G_NUM * self.REPET_fra)
         # print("sorted_fitness arg before repr:{}".format(sorted_fitness))
         sorted_fitness[-WINER_NUM:] = sorted_fitness[0]
         # print("sorted_fitness arg after repr:{}".format(sorted_fitness))
@@ -127,7 +136,7 @@ class GeneticOpt(object):
             # 交配
             rand_list = np.arange(0, len(self.Genetics))
             rand_list = list(rand_list)
-            for i in range(int(self.POOL_NUM * self.Cross_Fra // 2)):
+            for i in range(int(self.G_NUM * self.Cross_Fra // 2)):
                 rand_selet = random.sample(rand_list, k=2)
                 self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]] =  self.crossover(self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]])
                 if self.dump:
@@ -136,7 +145,7 @@ class GeneticOpt(object):
                     self.check_Genetic_w()
             
             # 突變
-            for i in range(int(self.POOL_NUM * self.Muta_Fra)):
+            for i in range(int(self.G_NUM * self.Muta_Fra)):
                 muta_rand = random.choice(rand_list)
                 self.Genetics[muta_rand] = self.mutation(self.Genetics[muta_rand])
                 if self.dump:
