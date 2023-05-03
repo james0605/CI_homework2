@@ -122,5 +122,6 @@ if __name__ == "__main__":
     traindata = np.array(getTrain4d())
     X = traindata[:, :-1]
     Y = traindata[:, -1]
+    print(Y)
     rbfn.fit(X,Y)
     print(rbfn.predict([9.7355, 10.9379, 18.5740]))

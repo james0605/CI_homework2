@@ -8,7 +8,9 @@ class GeneticOpt(object):
         self.traindata = [dist for dist in RBFN.getTrain4d()]
         self.dump = dump
         self.is_done = False
-        self.REPET_fra= 0.3
+        self.Muta_Fra = 0.3
+        self.Cross_Fra = 0.3
+        self.REPET_fra= 0.2
         self.GEN_NUM = 15
         for i in range(G_num):
             self.Genetics.append(RBFN.RBFNet(RBFN_K))
@@ -70,17 +72,17 @@ class GeneticOpt(object):
         fitness = np.array([self.RMSE_loss(Genetic) for Genetic in self.Genetics])
         sorted_fitness = np.argsort(fitness)
         print("BEST Genetic RMSE loss :{}".format(self.RMSE_loss(self.Genetics[sorted_fitness[0]])))
-        REPEAT_NUM = int(self.REPET_fra * self.GEN_NUM)+1
+        REPEAT_NUM = int(self.REPET_fra * self.GEN_NUM)
         if len(sorted_fitness) < self.GEN_NUM:
             for i in range(self.GEN_NUM-len(sorted_fitness) + 1):
-                sorted_fitness.append(0)
+                np.append(sorted_fitness, 0)
         else :
             sorted_fitness = sorted_fitness[:self.GEN_NUM]
         print("sorted_fitness : {}".format(sorted_fitness))
         for i in range(REPEAT_NUM):
             pool.append(self.Genetics[sorted_fitness[0]])
             
-        for i in range(1, self.GEN_NUM-REPEAT_NUM+1):
+        for i in range(1, self.GEN_NUM-REPEAT_NUM-1):
             pool.append(self.Genetics[sorted_fitness[i]])
             
         print("POOL NUM : {}".format(len(pool)))
@@ -106,9 +108,9 @@ class GeneticOpt(object):
     
     # 突變
     def mutation(self, Genetic, s = -1):
-        # rand = np.random.uniform(low=-1.0, high=1.0)
-        # Genetic.w += s * rand
-        Genetic.w *= s
+        rand = np.random.uniform(low=-1.0, high=1.0)
+        Genetic.w += s * rand
+        # Genetic.w *= s 
         return Genetic
     # 訓練
     def fit(self, epoch):
@@ -126,27 +128,33 @@ class GeneticOpt(object):
             if self.dump:
                 print("{:-^50s}".format("Origin"))
                 self.check_Genetic_w()
+
             # 複製
             self.Genetics = self.reproduction()
             if self.dump:
                 print("{:-^50s}".format("After Reproduction"))
                 self.check_Genetic_w()
+
             # 交配
             rand_list = np.arange(0, len(self.Genetics))
             rand_list = list(rand_list)
-            rand_selet = random.sample(rand_list, k=2)
-            self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]] =  self.crossover(self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]])
-            if self.dump:
-                print("{:-^50s}".format("After Crossover"))
-                print("Choose {} and {}".format(rand_selet[0], rand_selet[1]))
-                self.check_Genetic_w()
+            for i in range(int(self.GEN_NUM * self.Cross_Fra // 2)):
+                rand_selet = random.sample(rand_list, k=2)
+                self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]] =  self.crossover(self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]])
+
+                if self.dump:
+                    print("{:-^50s}".format("After Crossover"))
+                    print("Choose {} and {}".format(rand_selet[0], rand_selet[1]))
+                    self.check_Genetic_w()
+            
             # 突變
-            muta_rand = random.choice(rand_list)
-            self.Genetics[muta_rand].w = self.mutation(self.Genetics[muta_rand]).w
-            if self.dump:
-                print("{:-^50s}".format("After Mutation"))
-                print("Choose {}".format(muta_rand))
-                self.check_Genetic_w()
+            for i in range(int(self.GEN_NUM * self.Muta_Fra)):
+                muta_rand = random.choice(rand_list)
+                self.Genetics[muta_rand].w = self.mutation(self.Genetics[muta_rand]).w
+                if self.dump:
+                    print("{:-^50s}".format("After Mutation"))
+                    print("Choose {}".format(muta_rand))
+                    self.check_Genetic_w()
 
             # print("loss:{}".format(self.cal_loss()))
             # print("1 / old avg :{}".format(1/old_avg))
@@ -172,7 +180,7 @@ class GeneticOpt(object):
             # print(predict)
             # predict = float(predict*80.0-40.0)
             sum += abs(y - predict)**2
-        loss = (sum / len(self.traindata))**-2
+        loss = (sum / len(self.traindata))**1/2
         return loss
 
 
@@ -188,8 +196,9 @@ class GeneticOpt(object):
 
 if __name__ == "__main__":
     ga = GeneticOpt(1, 10, dump = False)    
-    print(ga.RMSE_loss(ga.Genetics[0]))
-    print(ga.Genetics[0].predict([9.7355, 10.9379, 18.5740]))
-    # ga.fit(epoch=100)
-    # ga.predict([11.5458, 31.8026, 11.1769]) # 40
-    # ga.predict([9.7355, 10.9379, 18.5740]) # -40
+    # print(ga.RMSE_loss(ga.Genetics[0]))
+    print(np.shape(ga.Genetics))
+    # print(ga.Genetics[0].predict([9.7355, 10.9379, 18.5740]))
+    ga.fit(epoch=100)
+    ga.predict([11.5458, 31.8026, 11.1769]) # 40
+    ga.predict([9.7355, 10.9379, 18.5740]) # -40
