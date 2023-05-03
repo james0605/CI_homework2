@@ -85,7 +85,8 @@ def kmeans(X, k):
 class RBFNet(object):
     def __init__(self, k=2):
         self.k = k
-        self.w = np.random.randn(k + 1)
+        self.w = np.random.randn(k + 1) * np.random.randn(k + 1) 
+        # self.w *= np.random.randn(k + 1)
         self.traindata = np.array(getTrain4d())
         self.X = self.traindata[:, :-1]
         self.Y = self.traindata[:, -1]

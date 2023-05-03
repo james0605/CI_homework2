@@ -67,35 +67,19 @@ class GeneticOpt(object):
         # avg_fitness = np.mean(fitness)
         # print("avg_fitness :{}".format(avg_fitness))
         pool = []
-        
 
         fitness = np.array([self.RMSE_loss(Genetic) for Genetic in self.Genetics])
         sorted_fitness = np.argsort(fitness)
         print("BEST Genetic RMSE loss :{}".format(self.RMSE_loss(self.Genetics[sorted_fitness[0]])))
-        REPEAT_NUM = int(self.REPET_fra * self.GEN_NUM)
-        if len(sorted_fitness) < self.GEN_NUM:
-            for i in range(self.GEN_NUM-len(sorted_fitness) + 1):
-                np.append(sorted_fitness, 0)
-        else :
-            sorted_fitness = sorted_fitness[:self.GEN_NUM]
-        print("sorted_fitness : {}".format(sorted_fitness))
-        for i in range(REPEAT_NUM):
-            pool.append(self.Genetics[sorted_fitness[0]])
-            
-        for i in range(1, self.GEN_NUM-REPEAT_NUM-1):
-            pool.append(self.Genetics[sorted_fitness[i]])
+        WINER_NUM = int(self.GEN_NUM * self.REPET_fra)
+        sorted_fitness[-WINER_NUM:] = sorted_fitness[0]
+        print("sorted_fitness arg after repr:{}".format(sorted_fitness))
+        for index in sorted_fitness:
+            pool.append(self.Genetics[index])
             
         print("POOL NUM : {}".format(len(pool)))
         print("sorted fitness arg:{}".format(sorted_fitness))
-        # avg_fitness = self.cal_avg_fitness()
-        # reproduction_Num = fitness/avg_fitness
-        # print("reproduction Num = {}".format(reproduction_Num))
-        # reproduction_Num = np.rint(reproduction_Num).astype(int)
 
-        # print("reproduction Num = {}".format(reproduction_Num))
-        # for k in range(len(reproduction_Num)):
-        #     for i in range(reproduction_Num[k]):
-        #         pool.append(self.Genetics[k])
         if len(pool) == 0:
             pool.append(self.Genetics[0])
         return pool
@@ -141,7 +125,6 @@ class GeneticOpt(object):
             for i in range(int(self.GEN_NUM * self.Cross_Fra // 2)):
                 rand_selet = random.sample(rand_list, k=2)
                 self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]] =  self.crossover(self.Genetics[rand_selet[0]], self.Genetics[rand_selet[1]])
-
                 if self.dump:
                     print("{:-^50s}".format("After Crossover"))
                     print("Choose {} and {}".format(rand_selet[0], rand_selet[1]))
@@ -180,7 +163,7 @@ class GeneticOpt(object):
             # print(predict)
             # predict = float(predict*80.0-40.0)
             sum += abs(y - predict)**2
-        loss = (sum / len(self.traindata))**1/2
+        loss = (sum / len(self.traindata))**(1/2)
         return loss
 
 
@@ -195,7 +178,7 @@ class GeneticOpt(object):
         return result
 
 if __name__ == "__main__":
-    ga = GeneticOpt(1, 10, dump = False)    
+    ga = GeneticOpt(30, 10, dump = False)    
     # print(ga.RMSE_loss(ga.Genetics[0]))
     print(np.shape(ga.Genetics))
     # print(ga.Genetics[0].predict([9.7355, 10.9379, 18.5740]))

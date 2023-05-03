@@ -315,7 +315,7 @@ def run_example(knum):
     data = np.array(rbfn.getTrain4d())
     data, y = data[:, :-1], data[:, -1]
     print(data)
-    ga = GA.GeneticOpt(G_num=10, RBFN_K=knum)
+    ga = GA.GeneticOpt(G_num=40, RBFN_K=knum)
     # rbfnet = rbfn.RBFNet(k=knum)
     ga.fit(100)
     # rbfnet.fit(data, y)
